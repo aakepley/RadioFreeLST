@@ -1,0 +1,29 @@
+# Mac OS X Finder
+# ---------------
+.DS_Store
+
+# Xcode
+# -----
+#*.model
+#*.mode1v3
+#*.mode2v3
+#*.perspective
+#*.perspectivev3
+#*.pbxuser
+
+# Other version control
+# ---------------------
+.hg
+.svn
+
+# backup files
+# ------------
+*~.nib
+*.swp
+*~
+
+# Python
+# ------
+*.pyc
+
+

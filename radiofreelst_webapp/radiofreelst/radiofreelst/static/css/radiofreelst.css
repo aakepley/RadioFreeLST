@@ -1,0 +1,18 @@
+/*
+
+Local CSS customizations for RadioFreeLST.
+	
+*/
+
+p.large-label {
+    text-transform: uppercase;
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 700;
+}
+
+p.subheading {
+    text-transform: uppercase;
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 550;
+    font-size: 110%;
+}

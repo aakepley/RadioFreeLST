@@ -1,3 +1,13 @@
+
+class Source(object):
+	def __init__(self):
+		self.name = None
+		self.ra = None
+		self.dec = None
+		self.riseLST = None
+		self.setLST = None
+
+
 def setUpObservatory (observatoryName, horizon):
     """
     set up object with observatory parameters.
@@ -51,7 +61,7 @@ def getSourceList(sourceData):
 def sanitizeInput():
     '''
 
-    This function will eventually santize the input from the web application
+    This function will eventually sanitize the input from the web application
     '''
 
     pass
@@ -60,32 +70,38 @@ def sanitizeInput():
 
 def findLST(observatory, sourceList ):
     '''
-    calculate the LST
+    Takes a list of source objects and populates their LST values.
+
+	Parameters
+	----------
+	observatory : pyephem.observer object
+	sourceList : list of Source objects.
 
     '''
 
     import ephem
 
-    for i in range(len(sourceList)):
+    for source in sourceList:
         
-        datastr = sourceList[i]['name'] + ',' + 'f|V|A0' + ',' + sourceList[i]['ra'] + ',' + sourceList[i]['dec'] + ',' + '2000'
+        datastr = "{0},f|V|A0,{1},{2},2000".format(source.name, source.ra, source.dec)
+
+        print ("*****", datastr)
 
         galaxy = ephem.readdb(datastr)
         galaxy.compute(observatory)        
 
         if galaxy.circumpolar:
-            sourceList[i]['riseLST'] = 0.0
-            sourceList[i]['setLST'] = 24.0
-        elif  galaxy.neverup:
-            sourceList[i]['riseLST'] = None
-            sourceList[i]['setLST'] = None
+            source.riseLST = 0.0
+            source.setLST = 24.0
+        elif galaxy.neverup:
+            source.riseLST = None
+            source.setLST = None
         else:
             observatory.date = galaxy.rise_time
-            sourceList[i]['riseLST'] = observatory.sidereal_time()
+            source.riseLST = observatory.sidereal_time()
             
             observatory.date = galaxy.set_time
-            sourceList[i]['setLST'] = observatory.sidereal_time()
-
+            source.setLST = observatory.sidereal_time()
 
 def runMe(observatoryName, horizon, sourceData):
 
@@ -93,11 +109,9 @@ def runMe(observatoryName, horizon, sourceData):
 
     observatory = setUpObservatory(observatoryName, horizon)
     
-    sourceList = getSourceList(sourceData)
+    getSourceList(sourceData)
 
-    findLST(observatory,sourceList)
-
-    print sourceList
+    sourceList = findLST(observatory,sourceList)
 
 
 
