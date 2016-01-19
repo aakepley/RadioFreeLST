@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 '''
 This script is used to launch radiofreelst.
 
 Application initialization should go here.
 
 '''
-from __future__ import division
-from __future__ import print_function
 
 import argparse
 
@@ -19,13 +19,13 @@ from flask import Flask
 # =====================================
 conf = dict()
 
-conf["usingSQLAlchemy"] = False
-conf["usingPostgreSQL"] = False
+conf["usingSQLAlchemy"] = True
+conf["usingPostgreSQL"] = True
 
 # These options only apply when the app is served in a production mode.
 conf["usingSentry"]		= False	# only for use in production mode
-conf["sentryDSN"]		= "insert your Sentry DSN here, e.g. 'https://...'"
-conf["usingUWSGI"]		= True # only applies to serving the app in a production mode
+conf["sentryDSN"]		= "" 	# insert your Sentry DSN here, e.g. 'https://...'
+conf["usingUWSGI"]		= True 	# only applies to serving the app in a production mode
 
 
 # --------------------------
@@ -62,8 +62,9 @@ app = create_app(debug=args.debug, conf=conf) # actually creates the Flask appli
 if conf["usingSQLAlchemy"]:
 
 	# Can't create the database connection unless we've created the app
-	from radiofreelst.model.database import db
-
+	#from radiofreelst.model.database import db
+	from radiofreelst.model.databasePostgreSQL import db
+	
 	@app.teardown_appcontext
 	def shutdown_session(exception=None):
 	   ''' Enable Flask to automatically remove database sessions at the

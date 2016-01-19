@@ -30,6 +30,10 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+	<!-- vis.js library -->
+	<script src="static/vis.js/vis.min.js"></script>
+	<link href="static/vis.js/vis.min.css" rel="stylesheet" type="text/css" />
+	
 </head>
 
 <body id="page-top" class="index">
@@ -99,9 +103,9 @@
 			<p class="large-label pull-left">Observatory</p>
 				<!-- Observatory button -->
 				<select class="form-control pull-right" name="observatory">
-					<option value="vla" selected>VLA</option>
-					<option value="apex">APEX</option>
-					<option value="greenbank">Green Bank</option>
+					{% for obs in observatories %}
+					<option value="{{obs.short_name}}" {% if selectedObservatory == obs.short_name %}selected{% endif %}>{{obs.name}}</option>
+					{% endfor %}
 				</select>
 			</span>
 		</div></div> <!-- end observatory label -->
@@ -139,21 +143,21 @@
 					    	<input type="hidden" name="mode" value="single_target">
 					    	<div class="input-group">
 					    		<span class="input-group-addon">Target Name</span>
-					    	 	<input type="text" class="form-control" name="target_name" style="text-align:right" id="single_target_name" autocomplete="off">
+					    	 	<input type="text" class="form-control" name="single_target_name" style="text-align:right" id="single_target_name" autocomplete="off" value="{{single_target_form_value_name}}">
 					    	 	<span class="input-group-btn"><!--button class="btn btn-default btn-info" type="submit">Submit</button--></span>
 					    	 </div>
 					    	 
 					    	<!-- Single Target RA -->
  					    	<div class="input-group">
 					    		<span class="input-group-addon">Target RA</span>
-					    	 	<input type="text" class="form-control" name="single_target_ra" style="text-align:right" id="single_target_ra_id" autocomplete="off">
+					    	 	<input type="text" class="form-control" name="single_target_ra" style="text-align:right" id="single_target_ra_id" autocomplete="off" value="{{single_target_form_value_ra}}">
 					    	 	<span class="input-group-btn"><!--button class="btn btn-default btn-info" type="submit">Submit</button--></span>
 					    	 </div>
 
 					    	<!-- Single Target Dec -->
  					    	<div class="input-group">
 					    		<span class="input-group-addon">Target Dec</span>
-					    	 	<input type="text" class="form-control" name="single_target_dec" style="text-align:right" id="single_target_dec_id" autocomplete="off">
+					    	 	<input type="text" class="form-control" name="single_target_dec" style="text-align:right" id="single_target_dec_id" autocomplete="off" value="{{single_target_form_value_dec}}">
 					    	 	<span class="input-group-btn"><!--button class="btn btn-default btn-info" type="submit">Submit</button--></span>
 					    	 </div>
 
@@ -185,7 +189,7 @@
 			        <form role="form" method="post">
 			        	<div class="row col-lg-12" style="padding-top:15pt">
 							<p><span style="color:black">Instructions here.</span></p>
-							<textarea class="form-control" rows="10" name="target_list_inputs" id="target_list_input_id" style="font-family:monospace;font-size:9pt"></textarea>
+							<textarea class="form-control" rows="10" name="target_list_input" id="target_list_input_id" style="font-family:monospace;font-size:9pt"></textarea>
 			        	</div><!-- end row -->
 			        	<div class="row col-lg-12" style="padding-top:10pt">
 			        		<button class="btn btn-default btn-info pull-right" type="submit">Go</button>
@@ -204,12 +208,50 @@
 
     </header>
 
-			
+	<!-- OUTPUT SECTION -->
+	{% if sourceList|length > 0 or neverUpSourceList|length > 0 %}
+    <section id="portfolio">
+        <div class="container">
+	        
+	        <!-- header row -->
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Timeline</h2>
+                    <hr class="star-primary">
+                </div>
+            </div>
 
-    
-    {% if sourceList is defined %}
-    {{sourceList[0].riseLST}}
+			<!-- timeline table row -->
+            <div class="row">
+                <div class="col-lg-12 text-center">
+
+					<div id="timeline"></div>
+
+                </div>
+            </div>
+
+			<!-- Sources that are never up -->
+			{% if neverUpSourceList|length > 0 %}
+            <div class="row">
+                <div class="col-lg-12 text-center">
+					<p>The following sources are never up:</p>
+					<p>
+						<!-- needs formatting -->
+						{% for src in neverUpSourceList %}
+						{{src.name}}
+						{% endfor %}
+					</p>
+
+                </div>
+            </div>
+            {% endif %}
+            
+        </div>
+
+
+    </section>
 	{% endif %}
+
 
     <!-- About Section -->
     <section class="success" id="about">
@@ -282,230 +324,6 @@
         </a>
     </div>
 
-    <!-- Portfolio Modals -->
-    <div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/cabin.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/cake.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal3" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/circus.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/game.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal5" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/safe.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal6" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/submarine.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client:
-                                    <strong><a href="http://startbootstrap.com">Start Bootstrap</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="http://startbootstrap.com">April 2014</a>
-                                    </strong>
-                                </li>
-                                <li>Service:
-                                    <strong><a href="http://startbootstrap.com">Web Development</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- jQuery -->
     <script src="/static/js/jquery-2.1.4.min.js"></script>
 
@@ -523,6 +341,41 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="static/js/freelancer.js"></script>
+    
+    <!-- create timeline here -->
+    {% if sourceList|length > 0 %}
+    <script type="text/javascript">
+		// get DOM element where the timeline will be attached
+		var container = document.getElementById('timeline');
+		
+		// create the data set
+		var items = new vis.DataSet([
+			{% for src in sourceList %}
+			// dates must be in ISO format
+			// ISO dates appended with "Z" are UTC (Zulu time)
+			{id: 1,
+			 content: '{{src.name}}',
+			 start: new Date("{{'{0.year}-{0.month:02d}-{0.day:02d}T{1[0]:02.0f}:{1[1]:02.0f}:{1[2]:02.0f}Z'.format(now, src.riseLST.hms)}}"),
+			 end: new Date("{{'{0.year}-{0.month:02d}-{0.day:02d}T{1[0]:02.0f}:{1[1]:02.0f}:{1[2]:02.0f}Z'.format(now, src.setLST.hms)}}")},
+			{% endfor %}
+		]);
+		
+		var options = {showCurrentTime: false,
+					   min: new Date("{{now.year}}-{{'%02d' % now.month}}-{{'%02d' % now.day}}T00:00:00Z"), // lower limit of visible range
+					   max: new Date("{{now.year}}-{{'%02d' % now.month}}-{{'%02d' % now.day}}T23:59:59Z"), // upper limit of visible range
+					   zoomMax: 1000 * 60 * 60 * 24,             // one day in milliseconds
+					   moment: function(date) { return vis.moment(date).utc(); },
+					   
+					   // use this to display in time zone offset UTC +08:00
+					   // moment: function(date) { return vis.moment(date).utcOffset('+08:00'); },
+					   
+		};
+		
+		// create the timeline
+		var timeline = new vis.Timeline(container, items, options);
+		
+    </script>
+    {% endif %}
 
 </body>
 

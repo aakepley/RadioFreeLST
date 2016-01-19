@@ -1,11 +1,16 @@
+import ephem
+from astropy.coordinates.angles import Angle
+import astropy.units as u
 
 class Source(object):
 	def __init__(self):
 		self.name = None
-		self.ra = None
-		self.dec = None
+		#self.ra = None
+		#self.dec = None
 		self.riseLST = None
 		self.setLST = None
+		self.neverUp = False
+		self.j2000coord = None
 
 
 def setUpObservatory (observatoryName, horizon):
@@ -68,7 +73,7 @@ def sanitizeInput():
 
 
 
-def findLST(observatory, sourceList ):
+def findLST(observatory, sourceList):
     '''
     Takes a list of source objects and populates their LST values.
 
@@ -79,29 +84,36 @@ def findLST(observatory, sourceList ):
 
     '''
 
-    import ephem
-
     for source in sourceList:
         
-        datastr = "{0},f|V|A0,{1},{2},2000".format(source.name, source.ra, source.dec)
+        # format: http://www.clearskyinstitute.com/xephem/help/xephem.html#mozTocId468501
+        ra = "{0[0]:02.0f}:{0[1]:02.0f}:{0[2]:02.0f}".format(source.j2000coord.ra.hms)
+        dec = "{0[0]:02.0f}:{0[1]:02.0f}:{0[2]:02.0f}".format(source.j2000coord.dec.dms)
+        datastr = "{0},f|V|A0,{1},{2},2000".format(source.name, ra, dec)
 
-        print ("*****", datastr)
+        #print ("*****", datastr)
 
         galaxy = ephem.readdb(datastr)
+        
+        #print(observatory.date)
+        
         galaxy.compute(observatory)        
 
         if galaxy.circumpolar:
-            source.riseLST = 0.0
-            source.setLST = 24.0
+            source.riseLST = Angle(0.0 * u.hour)
+            source.setLST = Angle(24.0 * u.hour)
         elif galaxy.neverup:
-            source.riseLST = None
-            source.setLST = None
+            #source.riseLST = None
+            #source.setLST = None
+            source.neverUp = True
         else:
             observatory.date = galaxy.rise_time
-            source.riseLST = observatory.sidereal_time()
+            source.riseLST = Angle(observatory.sidereal_time() * u.rad)
             
             observatory.date = galaxy.set_time
-            source.setLST = observatory.sidereal_time()
+            source.setLST = Angle(observatory.sidereal_time() * u.rad)
+        print("--> source.riseLST: ", source.riseLST, type(source.riseLST))
+
 
 def runMe(observatoryName, horizon, sourceData):
 
