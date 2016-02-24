@@ -10,7 +10,7 @@ from astropy.coordinates import SkyCoord, ICRS
 #from flask import request, render_template, send_from_directory
 from flask import current_app, render_template, request
 from . import valueFromRequest
-from ..code.radiofreelst import Source, findLST
+from ..code.radiofree import Source, findLST
 
 from ..model.databasePostgreSQL import db
 from ..model.ModelClasses import Observatory
