@@ -53,7 +53,7 @@ def index():
 		single_target_ra = valueFromRequest(key="single_target_ra", request=request, default=None)
 		single_target_dec = valueFromRequest(key="single_target_dec", request=request, default=None)
 		
-		# ratain form values
+		# retain form values
 		if single_target_name is not None:
 			single_target_form_value_name = single_target_name
 		if single_target_form_value_ra is not None:
@@ -137,8 +137,8 @@ def index():
 #
 @index_page.route('/favicon.ico')
 def favicon():
-	static_images_dir = directory=os.path.join(app.root_path, 'static', 'images')
-	return send_from_directory(static_images_dir, filename='favicon.ico')#, mimetype='image/vnd.microsoft.icon')
+	static_images_dir = directory=os.path.join(current_app.root_path, 'static', 'images')
+	return send_from_directory(static_images_dir, filename='radiofreelst.png')#, mimetype='image/vnd.microsoft.icon')
 
 @index_page.route('/robots.txt')
 def robots():
