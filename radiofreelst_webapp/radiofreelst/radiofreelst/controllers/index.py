@@ -27,7 +27,7 @@ def index():
 	# default form values (don't use the " character here without escaping it)
 	single_target_form_value_name = "M31"
 	single_target_form_value_ra = "00h 42m 44.3s"
-	single_target_form_value_dec = "41° 16′ 9\""
+	single_target_form_value_dec = unicode("41° 16′ 9\"", 'utf-8')
 
 	# Fetch full list of observatories from database.
 	session = db.Session()
